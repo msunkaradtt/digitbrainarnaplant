@@ -6,11 +6,14 @@ solutiongenerator/data/*
 
 schedulinggenerator/__pycache__/*
 schedulinggenerator/data/*
+schedulinggenerator/gamodel/__pycache__/*
 
 digitbrainenv/*
 
 dataprocessingservice/__pycache__/*
 dataprocessingservice/data/*
 dataprocessingservice/logs/*
+
+
 
 .vscode/*

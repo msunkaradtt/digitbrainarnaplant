@@ -3,6 +3,7 @@ from datamodel import Machine, Task, Tool
 import numpy as np
 from gamodel.gamodel import GaModel
 import copy
+import pandas as pd
 
 getData = GetData()
 initPopData = getData.getinitPop()
@@ -13,13 +14,14 @@ toolsData = getData.getTools()
 
 gaModel = GaModel()
 
-maxit = 501
+maxit = 20
 beta = 1
-prop_children = 1
-npop = len(initPopData['data'])
-num_children = int(np.round(prop_children * npop/2)*2)
+num_children = 8
 mu = 0.2
 sigma = 1 
+
+systemDate = "2023-02-13T00:00:00.000"
+sysDate = pd.to_datetime(systemDate)
 
 taskKeys = [int(k) for k in tasksData['UID']]
 varmin = min(taskKeys)
@@ -59,16 +61,28 @@ def rewardFnc(machine, solution):
         totalScore = 0
         
         if machine.secondsPerProduct == selectedTask.secondsPerProduct:
-            totalScore += 1
+            totalScore += 10
         else:
-            totalScore -= 1
+            totalScore -= 10
         
         if selectedTool.available > 0 and selectedTool.available != '':
-            totalScore += 1
+            totalScore += 10
         else:
-            totalScore -= 1
+            totalScore -= 10
 
-        totalScore += 0.5
+        totalScore += 5
+
+        date = pd.to_datetime(selectedTask.c_dueDate)
+        days = (date.date() - sysDate.date()).days
+
+        if days < 0:
+            totalScore -= 15
+        elif days > 0 and days < 3:
+            totalScore += 15
+        elif days > 3 and days <= 5:
+            totalScore += 10
+        else:
+            totalScore += 5
 
         individualScore.append(totalScore)
     
@@ -80,9 +94,9 @@ def rewardFnc(machine, solution):
         
         for k in temptools:
             if (temp.toolSize == k.toolSize and temp.toolCode == k.toolCode) and (k.toolSize != '' and k.toolCode != ''):
-                currentScore += 0.5
+                currentScore += 5
             else:
-                currentScore -= 0.5
+                currentScore -= 5
         temptools.insert(j, temp)
         individualScore.pop(j)
         individualScore.insert(j, currentScore)
@@ -96,7 +110,6 @@ selectedMachine = Machine(id=machinesData['id']['561'],
             machines_name=machinesData['machines_name']['561'])
 
 
-bestsol_cost = np.inf
 machineScores = {}
 
 for i in range(len(initPopData['data'])):
@@ -104,52 +117,61 @@ for i in range(len(initPopData['data'])):
     sumscore = sum(score)
     machineScores[i] = {'solution': initPopData['data'][i], 'cost': sumscore}
 
-    if machineScores[i]['cost'] < bestsol_cost:
-        pass
- 
+bestsol = {}
+bestsol_cost = 0
+
+for ii in range(len(initPopData['data'])):
+
+    if machineScores[ii]['cost'] > bestsol_cost:
+        bestsol = copy.deepcopy(machineScores[ii])
+        bestsol_cost = machineScores[ii]['cost']
+
+
 bestcost = np.empty(maxit)
 
-#for it in range(maxit):
-costs = []
-for i in range(len(machineScores)):
-    costs.append(machineScores[i]['cost'])
-costs = np.array(costs)
-avg_cost = np.mean(costs)
-if avg_cost != 0:
-    costs = costs/avg_cost
-probs = np.exp(-beta*costs)
-
-for _ in range(2//2):
-    p1 = machineScores[gaModel.roulette_wheel_selection(probs)]
-    p2 = machineScores[gaModel.roulette_wheel_selection(probs)]
-
-    print("Selection")
-    print(p1)
-    print(p2)
-    print("============")
-
-    c1, c2 = gaModel.crossover(p1, p2)
-
-    print("Crossover")
-    print(c1)
-    print(c2)
-    print("============")
-
-    c1 = gaModel.mutate(c1, mu, sigma)
-    c2 = gaModel.mutate(c2, mu, sigma)
-    print("Mutation")
-    print(c1)
-    print(c2)
-    print("============")
-
-    gaModel.bounds(c1, varmin, varmax)
-    gaModel.bounds(c2, varmin, varmax)
-
-    c1['cost'] = sum(rewardFnc(selectedMachine, c1['solution']))
+for it in range(maxit):
+    costs = []
     
-    if type(bestsol_cost) == float:
-        if c1['cost'] < bestsol_cost:
-            bestsol_cost = copy.deepcopy(c1)
-    else:
-        if c1['cost'] < bestsol_cost['cost']:
-            bestsol_cost = copy.deepcopy(c1)
+    for i in range(len(machineScores)):
+        costs.append(machineScores[i]['cost'])
+    
+    costs = np.array(costs)
+    
+    avg_cost = np.mean(costs)
+    
+    if avg_cost != 0:
+        costs = costs/avg_cost
+    
+    probs = np.exp(np.float128(-beta*costs))
+    
+    for _ in range(num_children//2):
+        p1 = machineScores[gaModel.roulette_wheel_selection(probs)]
+        p2 = machineScores[gaModel.roulette_wheel_selection(probs)]
+        
+        c1, c2 = gaModel.crossover(p1, p2)
+        
+        c1 = gaModel.mutate(c1, mu, sigma)
+        c2 = gaModel.mutate(c2, mu, sigma)
+        
+        gaModel.bounds(c1, varmin, varmax)
+        gaModel.bounds(c2, varmin, varmax)
+        
+        c1['cost'] = sum(rewardFnc(selectedMachine, c1['solution']))
+        c2['cost'] = sum(rewardFnc(selectedMachine, c2['solution']))
+
+        if c1['cost'] > bestsol_cost:
+            bestsol = copy.deepcopy(c1)
+            bestsol_cost = c1['cost']
+        
+        if c2['cost'] > bestsol_cost:
+            bestsol = copy.deepcopy(c2)
+            bestsol_cost = c2['cost']
+ 
+    machineScores[len(machineScores)] = c1
+    machineScores[len(machineScores)] = c2
+        
+    machineScores = gaModel.sort(machineScores)
+
+    bestcost[it] = bestsol_cost
+
+    print(f'Iteration {it}: Best Cost = {bestcost[it]}, Best Cost = {bestsol}')
