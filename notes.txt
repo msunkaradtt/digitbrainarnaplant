@@ -1,8 +1,10 @@
 docker commands
+
 docker build -t msunkaradtt/dataprocessingservice:0.3 .
-docker run --name dpservice --network=host -p 3000:3000 -d msunkaradtt/dataprocessingservice:0.3 
+docker run --name dpservice --network digitbrain -p 3000:3000 -d msunkaradtt/dataprocessingservice:0.3 
 
-docker build -t msunkaradtt/solutiongenerator:0.5 .
-docker run --name solservice --network=host -p 3001:3001 -d msunkaradtt/solutiongenerator:0.5
+docker build -t msunkaradtt/solutiongenerator:0.6 .
+docker run --name solservice --network digitbrain -p 3001:3001 -d msunkaradtt/solutiongenerator:0.6
 
-docker build -t msunkaradtt/schedulinggenerator:0.1 .
+docker build -t msunkaradtt/schedulinggenerator:0.4 .
+docker run --name sechservice --network digitbrain -p 3002:3002 -d msunkaradtt/schedulinggenerator:0.4

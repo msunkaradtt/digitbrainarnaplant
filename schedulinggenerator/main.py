@@ -17,7 +17,7 @@ data_dir_ = work_dir_ + "/" + "data"
 
 maxit = 10
 beta = 1
-num_children = 2
+num_children = 4
 mu = 0.7
 sigma = -2 
 systemDate = "2023-02-13T00:00:00.000"
@@ -61,10 +61,10 @@ async def root():
         bestsol = {}
         bestsol_cost = 0
     
-        for ii in range(len(initPopData['data'])):
-            if machineScores[ii]['cost'] > bestsol_cost:
-                bestsol = copy.deepcopy(machineScores[ii])
-                bestsol_cost = machineScores[ii]['cost']
+        #for ii in range(len(initPopData['data'])):
+        #    if machineScores[ii]['cost'] > bestsol_cost:
+        #        bestsol = copy.deepcopy(machineScores[ii])
+        #        bestsol_cost = machineScores[ii]['cost']
     
         bestcost = np.empty(maxit)
 

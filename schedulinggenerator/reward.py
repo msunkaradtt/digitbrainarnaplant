@@ -1,6 +1,5 @@
 from datamodel import Task, Tool
 import pandas as pd
-import numpy as np
 
 class Reward():
     def rewardFnc(self, tasksData, toolsData, sysDate, machine, solution, givenSolutions):
