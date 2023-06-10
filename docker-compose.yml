@@ -3,7 +3,7 @@ version: '3'
 services:
   dtpprocessing_service:
     container_name: dpservice
-    image: msunkaradtt/dataprocessingservice:0.5
+    image: msunkaradtt/dataprocessingservice:0.7
     ports:
       - 3000:3000
     environment:
@@ -16,7 +16,7 @@ services:
 
   solgenerator_service:
     container_name: solservice
-    image: msunkaradtt/solutiongenerator:0.8
+    image: msunkaradtt/solutiongenerator:0.9
     ports:
       - 3001:3001
     environment:
@@ -28,7 +28,7 @@ services:
 
   secgenerator_service:
     container_name: secservice
-    image: msunkaradtt/schedulinggenerator:0.6
+    image: msunkaradtt/schedulinggenerator:0.7
     ports:
       - 3002:3002
     environment:
@@ -36,6 +36,8 @@ services:
       - MUTATION_RATE=0.2
       - MUTATION_FLIP=10
       - SYS_DATE=2023-02-13T00:00:00.000
+      - FLAG_ALL=no
+      - MACHINE_COUNT=6
     networks:
       - digitbrain
     restart: unless-stopped

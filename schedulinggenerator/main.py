@@ -22,6 +22,9 @@ async def root():
     mu = float(os.getenv('MUTATION_RATE', 0.2))
     sigma = int(os.getenv('MUTATION_FLIP', 10))
 
+    solAll = os.getenv('FLAG_ALL', "no")
+    machineCount = int(os.getenv('MACHINE_COUNT', 5))
+
     systemDate = os.getenv('SYS_DATE', "2023-02-13T00:00:00.000")
     sysDate = pd.to_datetime(systemDate)
 
@@ -43,13 +46,20 @@ async def root():
     varmin = min(taskKeys)
     varmax = max(taskKeys)
 
+    machineKeys = [mac for mac in machinesData['id'].keys()]
+    getSolMachineKeys = []
+    if solAll == "no":
+        getSolMachineKeys = copy.deepcopy(machineKeys[:machineCount])
+    elif solAll == "yes":
+        getSolMachineKeys = copy.deepcopy(machineKeys)
+
     givenSolutions = []
 
     machineSolutions = {}
 
     machinePops = {}
 
-    for macID in machinesData['id'].keys():
+    for macID in getSolMachineKeys:
         selectedMachine = Machine(id=machinesData['id'][macID],
                                   secondsPerProduct=machinesData['secondsPerProduct'][macID],
                                   name=machinesData['name'][macID],
@@ -109,7 +119,7 @@ async def root():
                 bestsol = matatedPop[up]
                 bestcost = matatedPop[up]['cost']
 
-        # print(f'Machine {macID}: Best Solution = {bestsol}')
+        print(f'Machine {macID}: Best Solution = {bestsol}')
 
         givenSolutions.append(bestsol['solution'])
 
