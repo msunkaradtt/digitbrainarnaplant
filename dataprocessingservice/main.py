@@ -10,6 +10,9 @@ app = fapi()
 work_dir_ = os.getcwd()
 data_dir_ = work_dir_ + "/" + "data"
 
+'''
+Global Config Parameters
+'''
 ENV_TASKS_URL = os.getenv(
     'ENV_TASKS_URL', 'https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tasks')
 ENV_TOOLS_URL = os.getenv(

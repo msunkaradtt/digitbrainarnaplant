@@ -14,6 +14,18 @@ services:
       - digitbrain
     restart: unless-stopped
 
+  solgenerator_service:
+    container_name: solservice
+    image: msunkaradtt/solutiongenerator:0.8
+    ports:
+      - 3001:3001
+    environment:
+      - POPULATION_SIZE_MULTI=1
+      - SOLUTION_SIZE=4
+    networks:
+      - digitbrain
+    restart: unless-stopped
+
 networks:
   digitbrain:
     driver: bridge

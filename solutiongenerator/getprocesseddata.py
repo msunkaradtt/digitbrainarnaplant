@@ -3,7 +3,7 @@ import pandas as pd
 
 
 class GetProcessedData:
-    def getTasks(self, url='http://127.0.0.1:8000/tasks',
+    def getTasks(self, url='http://dpservice:3000/tasks',
                  timeout=10):
         req_task = req.get(url, timeout=timeout, headers={
                            'Content-Type': 'application/json'})
@@ -67,7 +67,7 @@ class GetProcessedData:
         sortData = taskData.sort_values(by=['secondsPerProduct'])
         return sortData
 
-    def getMachines(self, url='http://127.0.0.1:8000/machines',
+    def getMachines(self, url='http://dpservice:3000/machines',
                     timeout=10):
         req_machine = req.get(url, timeout=timeout, headers={
                               'Content-Type': 'application/json'})
