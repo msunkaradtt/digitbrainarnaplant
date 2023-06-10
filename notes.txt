@@ -6,5 +6,5 @@ docker run --name dpservice --network digitbrain -p 3000:3000 -d msunkaradtt/dat
 docker build -t msunkaradtt/solutiongenerator:0.8 .
 docker run --name solservice --network digitbrain -p 3001:3001 -d msunkaradtt/solutiongenerator:0.8
 
-docker build -t msunkaradtt/schedulinggenerator:0.4 .
-docker run --name sechservice --network digitbrain -p 3002:3002 -d msunkaradtt/schedulinggenerator:0.4
+docker build -t msunkaradtt/schedulinggenerator:0.6 .
+docker run --name sechservice --network digitbrain -p 3002:3002 -d msunkaradtt/schedulinggenerator:0.6

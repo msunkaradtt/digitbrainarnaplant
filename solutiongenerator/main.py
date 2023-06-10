@@ -11,8 +11,8 @@ import psutil
 '''
 Global Config Parameters
 '''
-POP_SIZE_MULTI = int(os.getenv('POPULATION_SIZE_MULTI'))  # 1
-CHROMO_SIZE = int(os.getenv('SOLUTION_SIZE'))  # 4
+POP_SIZE_MULTI = int(os.getenv('POPULATION_SIZE_MULTI', 1))
+CHROMO_SIZE = int(os.getenv('SOLUTION_SIZE', 4))
 CHROMO_SERIES_PROB = 0.9
 
 app = fapi()

@@ -16,13 +16,13 @@ data_dir_ = work_dir_ + "/" + "data"
 
 
 @app.get("/")
-def root():
-    maxit = 7
+async def root():
+    maxit = int(os.getenv('GENERATIONS', 7))
     prop_children = 1
-    mu = 0.2
-    sigma = 10
+    mu = float(os.getenv('MUTATION_RATE', 0.2))
+    sigma = int(os.getenv('MUTATION_FLIP', 10))
 
-    systemDate = "2023-02-13T00:00:00.000"
+    systemDate = os.getenv('SYS_DATE', "2023-02-13T00:00:00.000")
     sysDate = pd.to_datetime(systemDate)
 
     getData = GetData()

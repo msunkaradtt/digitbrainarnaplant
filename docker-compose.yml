@@ -26,6 +26,20 @@ services:
       - digitbrain
     restart: unless-stopped
 
+  secgenerator_service:
+    container_name: secservice
+    image: msunkaradtt/schedulinggenerator:0.6
+    ports:
+      - 3002:3002
+    environment:
+      - GENERATIONS=7
+      - MUTATION_RATE=0.2
+      - MUTATION_FLIP=10
+      - SYS_DATE=2023-02-13T00:00:00.000
+    networks:
+      - digitbrain
+    restart: unless-stopped
+
 networks:
   digitbrain:
     driver: bridge
