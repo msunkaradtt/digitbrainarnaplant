@@ -2,8 +2,18 @@ version: '3'
 
 services:
   dtpprocessing_service:
-    container_name: dtpprocessing
-    image: msunkaradtt/dataprocessingservice:0.2
+    container_name: dpservice
+    image: msunkaradtt/dataprocessingservice:0.5
     ports:
-      - 80:80
+      - 3000:3000
+    environment:
+      - ENV_TASKS_URL=https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tasks
+      - ENV_TOOLS_URL=https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tools
+      - ENV_MACHINES_URL=https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/machines
+    networks:
+      - digitbrain
     restart: unless-stopped
+
+networks:
+  digitbrain:
+    driver: bridge
