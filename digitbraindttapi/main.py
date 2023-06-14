@@ -4,8 +4,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+from getdata import GetData
 
 app = fapi()
+getdata = GetData()
 
 app.mount("/assets",
           StaticFiles(directory=Path(
@@ -22,9 +24,17 @@ async def root(request: Request):
 
 @app.get("/updateall")
 async def updateall():
+
+    pass
+
+
+@app.get("/updateexistingsolution")
+async def updateexistingsolution():
     pass
 
 
 @app.get("/getexistingsolution")
 async def getexistingsolution():
-    pass
+    data = await getdata.fetchEndpoint('http://127.0.0.1:3002/machinetasks')
+
+    return data
