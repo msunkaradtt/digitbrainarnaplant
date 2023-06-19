@@ -6,16 +6,31 @@ from gamodel.gamodel import GaModel
 import copy
 import pandas as pd
 from fastapi import FastAPI as fapi
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import json
 
 app = fapi()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 work_dir_ = os.getcwd()
 data_dir_ = work_dir_ + "/" + "data"
+
+status = {'finished': ""}
 
 
 @app.get("/")
 async def root():
+    status['finished'] = ""
+
     maxit = int(os.getenv('GENERATIONS', 7))
 
     mu = float(os.getenv('MUTATION_RATE', 0.2))
@@ -127,7 +142,14 @@ async def root():
         json.dump(pop_data, f, indent=4)
         f.close()
 
+    status['finished'] = "Done!"
+
     return {"message": "Updated the data!"}
+
+
+@app.get("/getStatus")
+async def get_status():
+    return status
 
 
 @app.get("/machinetasks")

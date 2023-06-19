@@ -6,6 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Web page CSS -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <!-- Simple lightbox CSS -->
+    <link rel="stylesheet" href="assets/css/simple-lightbox.min.css" />
+
     <link rel="stylesheet" href="assets/css/loader.css" />
 
     <title>DTT-Arneplant API | Loading</title>
@@ -290,11 +296,14 @@
             </div>
         </div>
         <div class="message">
-            <p class="message__line">Data Processing: {{dpdata}}</p>
-            <p class="message__line">Initial Solutions Generation: {{soldata}}</p>
-            <p class="message__line">Scheduling Tasks: {{secdata}}</p>
+            <p class="message__line" id="data-container">Loading...</p>
+            <p class="message__line" id="data-container_1"></p>
+            <a class="btn blue" id="btn-toggler" href="http://127.0.0.1:3006">Home</a>
         </div>
     </main>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="assets/js/loading.js"></script>
 </body>
 
 </html>

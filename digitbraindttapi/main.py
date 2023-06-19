@@ -23,32 +23,30 @@ async def root(request: Request):
 
 
 @app.get("/updateall")
-async def updateall(background_task: BackgroundTasks):
+async def updateall(request: Request, background_task: BackgroundTasks):
     background_task.add_task(update_all_async)
-    return {'message': "Updating the solution in background!"}
+
+    return templates.TemplateResponse("loading.html", {"request": request})
 
 
 @app.get("/updateexistingsolution")
 async def updateexistingsolution():
-    pass
+    return {'message': "Need to write logic!"}
 
 
 @app.get("/getexistingsolution")
 async def getexistingsolution():
-    data = await getdata.fetchEndpoint('http://127.0.0.1:3002/machinetasks')
+    data = await getdata.fetchEndpoint('http://secservice:3002/machinetasks')
 
     return data
 
 
 async def update_all_async():
-    res_dpservice = await getdata.fetchEndpoint('http://127.0.0.1:3000')
+    res_dpservice = await getdata.fetchEndpoint('http://dpservice:3000')
 
     res_solservice = None
     if res_dpservice:
-        res_solservice = await getdata.fetchEndpoint('http://127.0.0.1:3001')
+        res_solservice = await getdata.fetchEndpoint('http://solservice:3001')
 
-    res_secservice = None
     if res_dpservice and res_solservice:
-        res_secservice = await getdata.fetchEndpoint('http://127.0.0.1:3002')
-
-    print(res_secservice)
+        _ = await getdata.fetchEndpoint('http://secservice:3002')

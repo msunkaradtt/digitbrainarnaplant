@@ -9,5 +9,5 @@ docker run --name solservice --network digitbrain -p 3001:3001 -d msunkaradtt/so
 docker build -t msunkaradtt/schedulinggenerator:0.7 .
 docker run --name sechservice --network digitbrain -p 3002:3002 -d msunkaradtt/schedulinggenerator:0.7
 
-
+docker build -t msunkaradtt/digitbraindttapi:0.0 .
 docker push msunkaradtt/IMAGE:TAG
