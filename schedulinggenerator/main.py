@@ -3,7 +3,6 @@ from datamodel import Machine, Task
 from reward import Reward
 from gamodel.gamodel import GaModel
 
-import numpy as np
 import copy
 import pandas as pd
 from fastapi import FastAPI as fapi
@@ -18,12 +17,12 @@ data_dir_ = work_dir_ + "/" + "data"
 @app.get("/")
 async def root():
     maxit = int(os.getenv('GENERATIONS', 7))
-    prop_children = 1
+
     mu = float(os.getenv('MUTATION_RATE', 0.2))
     sigma = int(os.getenv('MUTATION_FLIP', 10))
 
     solAll = os.getenv('FLAG_ALL', "no")
-    machineCount = int(os.getenv('MACHINE_COUNT', 5))
+    machineCount = int(os.getenv('MACHINE_COUNT', 10))
 
     systemDate = os.getenv('SYS_DATE', "2023-02-13T00:00:00.000")
     sysDate = pd.to_datetime(systemDate)
@@ -37,7 +36,8 @@ async def root():
     machinesData = getData.getMachines()
     toolsData = getData.getTools()
 
-    num_children = int(np.round(prop_children * len(initPopData['data'])/2)*2)
+    num_children = len(initPopData['data'])
+    sol_size = len(initPopData['data'][0])
 
     gaModel = GaModel()
 
@@ -88,28 +88,10 @@ async def root():
             for i in range(len(learnpop)):
                 costs.append(learnpop[i]['cost'])
 
-            for chId in range(num_children):
-                p1 = gaModel.tournament_selection(learnpop, costs, 2)
-                p2 = gaModel.tournament_selection(learnpop, costs, 2)
-
-                c1, c2 = gaModel.crossover(p1, p2)
-
-                c1 = gaModel.mutate(c1, mu, sigma)
-                c2 = gaModel.mutate(c2, mu, sigma)
-
-                gaModel.bounds(c1, varmin, varmax)
-                gaModel.bounds(c2, varmin, varmax)
-
-                c1['solution'] = c1['solution'].tolist()
-                c2['solution'] = c2['solution'].tolist()
-
-                c1['cost'] = sum(varifier.rewardFnc(tasksData, toolsData, sysDate,
-                                                    selectedMachine, c1['solution'], givenSolutions))
-                c2['cost'] = sum(varifier.rewardFnc(tasksData, toolsData, sysDate,
-                                                    selectedMachine, c2['solution'], givenSolutions))
-
-                matatedPop[chId] = c1
-                matatedPop[chId + 1] = c2
+            learn(num_children, gaModel, learnpop, costs, mu, sigma,
+                  varmin, varmax, varifier, tasksData, toolsData,
+                  sysDate, selectedMachine, givenSolutions,
+                  sol_size, matatedPop)
 
         bestsol = {}
         bestcost = 0
@@ -119,7 +101,7 @@ async def root():
                 bestsol = matatedPop[up]
                 bestcost = matatedPop[up]['cost']
 
-        print(f'Machine {macID}: Best Solution = {bestsol}')
+        # print(f'Machine {macID}: Best Solution = {bestsol}')
 
         givenSolutions.append(bestsol['solution'])
 
@@ -184,3 +166,39 @@ async def get_machinetasks():
         consData[macID] = {'machine': selectedMachine, 'tasks': taskList}
 
     return consData
+
+
+def learn(num_children, gaModel, learnpop, costs, mu,
+          sigma, varmin, varmax, varifier, tasksData,
+          toolsData, sysDate, selectedMachine, givenSolutions,
+          sol_size, matatedPop):
+    chId = 0
+
+    while chId != num_children:
+        c1 = {}
+        c2 = {}
+
+        p1 = gaModel.tournament_selection(learnpop, costs, 2)
+        p2 = gaModel.tournament_selection(learnpop, costs, 2)
+
+        c1, c2 = gaModel.crossover(p1, p2)
+
+        c1 = gaModel.mutate(c1, mu, sigma)
+        c2 = gaModel.mutate(c2, mu, sigma)
+
+        gaModel.bounds(c1, varmin, varmax)
+        gaModel.bounds(c2, varmin, varmax)
+
+        c1['solution'] = c1['solution'].tolist()
+        c2['solution'] = c2['solution'].tolist()
+
+        c1['cost'] = sum(varifier.rewardFnc(tasksData, toolsData, sysDate,
+                                            selectedMachine, c1['solution'], givenSolutions))
+
+        c2['cost'] = sum(varifier.rewardFnc(tasksData, toolsData, sysDate,
+                                            selectedMachine, c2['solution'], givenSolutions))
+
+        if len(c1['solution']) == sol_size and len(c2['solution']) == sol_size:
+            matatedPop[chId] = c1
+            matatedPop[chId + 1] = c2
+            chId += 2

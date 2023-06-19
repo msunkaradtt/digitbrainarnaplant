@@ -22,8 +22,10 @@ class GaModel():
 
         cutpoint = len(c1['solution']) // 2
 
-        c1['solution'] = [*p1['solution'][:cutpoint], *p2['solution'][cutpoint:]]
-        c2['solution'] = [*p2['solution'][:cutpoint], *p1['solution'][cutpoint:]]
+        c1['solution'] = [*p1['solution']
+                          [:cutpoint], *p2['solution'][cutpoint:]]
+        c2['solution'] = [*p2['solution']
+                          [:cutpoint], *p1['solution'][cutpoint:]]
 
         return c1, c2
 
