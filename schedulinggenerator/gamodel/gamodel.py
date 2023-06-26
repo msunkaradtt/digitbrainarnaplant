@@ -33,6 +33,7 @@ class GaModel():
         y = copy.deepcopy(c)
 
         flag = np.random.rand(*(np.array(c['solution']).shape)) <= mu
+
         ind = np.argwhere(flag)
 
         if len(ind) != 0:

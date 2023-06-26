@@ -24,6 +24,7 @@ data_dir_ = work_dir_ + "/" + "data"
 async def root():
     dataGetter = GetProcessedData()
     td_cus_date, td_cus_tool, td_fac_date, td_fac_tool, td_cus_spp, td_fac_spp = dataGetter.getTasks()
+
     machineData_count = dataGetter.getMachines()
 
     popSize = machineData_count * POP_SIZE_MULTI
@@ -33,17 +34,44 @@ async def root():
     workersCount = psutil.cpu_count() * (psutil.cpu_count() //
                                          psutil.cpu_count(logical=False))
 
-    with ThreadPoolExecutor(workersCount) as pool:
-        tdcd_data_worker = pool.submit(popGenerator.constructPop, td_cus_date)
-        tdct_data_worker = pool.submit(popGenerator.constructPop, td_cus_tool)
-        tdcspp_data_worker = pool.submit(popGenerator.constructPop, td_cus_spp)
-        tdfd_data_worker = pool.submit(popGenerator.constructPop, td_fac_date)
-        tdft_data_worker = pool.submit(popGenerator.constructPop, td_fac_tool)
-        tdfspp_data_worker = pool.submit(popGenerator.constructPop, td_fac_spp)
+    popData = []
 
-    popData = tdcd_data_worker.result() + tdct_data_worker.result() + tdcspp_data_worker.result() + \
-        tdfd_data_worker.result() + tdft_data_worker.result() + \
-        tdfspp_data_worker.result()
+    tdcd_data_worker = None
+    tdct_data_worker = None
+    tdcspp_data_worker = None
+    tdfd_data_worker = None
+    tdft_data_worker = None
+    tdfspp_data_worker = None
+
+    with ThreadPoolExecutor(workersCount) as pool:
+        if len(td_cus_date) != 0:
+            tdcd_data_worker = pool.submit(
+                popGenerator.constructPop, td_cus_date)
+            popData = popData + tdcd_data_worker.result()
+        if len(td_cus_tool) != 0:
+            tdct_data_worker = pool.submit(
+                popGenerator.constructPop, td_cus_tool)
+            popData = popData + tdct_data_worker.result()
+        if len(td_cus_spp) != 0:
+            tdcspp_data_worker = pool.submit(
+                popGenerator.constructPop, td_cus_spp)
+            popData = popData + tdcspp_data_worker.result()
+        if len(td_fac_date) != 0:
+            tdfd_data_worker = pool.submit(
+                popGenerator.constructPop, td_fac_date)
+            popData = popData + tdfd_data_worker.result()
+        if len(td_fac_tool) != 0:
+            tdft_data_worker = pool.submit(
+                popGenerator.constructPop, td_fac_tool)
+            popData = popData + tdft_data_worker.result()
+        if len(td_fac_spp) != 0:
+            tdfspp_data_worker = pool.submit(
+                popGenerator.constructPop, td_fac_spp)
+            popData = popData + tdfspp_data_worker.result()
+
+    # popData = tdcd_data_worker.result() + tdct_data_worker.result() + tdcspp_data_worker.result() + \
+    #    tdfd_data_worker.result() + tdft_data_worker.result() + \
+    #    tdfspp_data_worker.result()
 
     if not os.path.isdir(data_dir_):
         os.makedirs(data_dir_)

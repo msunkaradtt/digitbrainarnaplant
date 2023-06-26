@@ -1,14 +1,24 @@
+import json
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI as fapi
+import pandas as pd
+import copy
 from getdata import GetData
+from getmodel import GetModel
 from datamodel import Machine, Task
 from reward import Reward
-from gamodel.gamodel import GaModel
-
-import copy
-import pandas as pd
-from fastapi import FastAPI as fapi
-from fastapi.middleware.cors import CORSMiddleware
 import os
-import json
+
+modelURL = os.getenv(
+    'MODEL_FILE_URL', "https://raw.githubusercontent.com/msunkaradtt/digitbrainarnaplant/dev2/schedulinggenerator/gamodel/gamodel.py")
+getModel = GetModel()
+getModel.getModel(modelURL)
+
+try:
+    from gamodel.gamodel import GaModel
+except ImportError as e:
+    print(e.msg)
+
 
 app = fapi()
 

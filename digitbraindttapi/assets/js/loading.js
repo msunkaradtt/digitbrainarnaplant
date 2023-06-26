@@ -1,6 +1,6 @@
 $(document).ready(function () {
     document.getElementById('btn-toggler').style.display = 'none';
-    var nre = setInterval(fetchUpdatedData, 60000);
+    var nre = setInterval(fetchUpdatedData, 30000);
     function fetchUpdatedData() {
         $.ajax({
             url: "http://127.0.0.1:3002/getStatus",
