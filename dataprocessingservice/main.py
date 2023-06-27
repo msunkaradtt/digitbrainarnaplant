@@ -2,11 +2,21 @@ from datareader import DataReader
 from datapreprocessor import DataPreProcessor
 import os
 from fastapi import FastAPI as fapi
+from fastapi.middleware.cors import CORSMiddleware
 import json
 import pandas as pd
 from datetime import datetime, timedelta
 
 app = fapi()
+
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 work_dir_ = os.getcwd()
 data_dir_ = work_dir_ + "/" + "data"
 
@@ -70,7 +80,7 @@ async def root():
     file_path_3 = data_dir_ + "/" + "machines.json"
     p3_data.to_json(file_path_3, indent=4)
 
-    return {"message": "Updated the data!"}
+    return {"message": "Done"}
 
 
 @app.get("/tasks")

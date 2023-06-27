@@ -1,6 +1,7 @@
 import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI as fapi
+from fastapi import WebSocket
 import pandas as pd
 import copy
 from getdata import GetData
@@ -8,6 +9,7 @@ from getmodel import GetModel
 from datamodel import Machine, Task
 from reward import Reward
 import os
+import asyncio
 
 modelURL = os.getenv(
     'MODEL_FILE_URL', "https://raw.githubusercontent.com/msunkaradtt/digitbrainarnaplant/dev2/schedulinggenerator/gamodel/gamodel.py")
@@ -34,12 +36,14 @@ app.add_middleware(
 work_dir_ = os.getcwd()
 data_dir_ = work_dir_ + "/" + "data"
 
-status = {'finished': ""}
+status = {'message': ""}
 
 
-@app.get("/")
-async def root():
-    status['finished'] = ""
+# @app.get("/")
+@app.websocket("/wslearn")
+async def root(websocket: WebSocket):
+
+    await websocket.accept()
 
     maxit = int(os.getenv('GENERATIONS', 7))
 
@@ -47,7 +51,7 @@ async def root():
     sigma = int(os.getenv('MUTATION_FLIP', 10))
 
     solAll = os.getenv('FLAG_ALL', "no")
-    machineCount = int(os.getenv('MACHINE_COUNT', 10))
+    machineCount = int(os.getenv('MACHINE_COUNT', 2))
 
     systemDate = os.getenv('SYS_DATE', "2023-02-13T00:00:00.000")
     sysDate = pd.to_datetime(systemDate)
@@ -83,6 +87,69 @@ async def root():
     machineSolutions = {}
 
     machinePops = {}
+
+    status['message'] = "Loading"
+
+    loop = asyncio.get_event_loop()
+
+    worker_ = loop.run_in_executor(None, scheduling, getSolMachineKeys, machinesData, initPopData, varifier,
+                                   tasksData, toolsData, sysDate, givenSolutions, maxit,
+                                   num_children, gaModel, mu, sigma, varmin, varmax,
+                                   sol_size, machineSolutions, machinePops)
+
+    while True:
+        if worker_.done():
+            break
+
+        await websocket.send_json(status)
+        await asyncio.sleep(0.1)
+
+    status['message'] = "Done"
+    await websocket.send_json(status)
+
+
+@app.get("/machinetasks")
+async def get_machinetasks():
+    getData = GetData()
+
+    tasksData = getData.getTasks()
+    machinesData = getData.getMachines()
+
+    file_path = data_dir_ + "/" + "machinesolutions.json"
+    data = {}
+    with open(file_path) as f:
+        data = json.load(f)
+        f.close()
+
+    consData = {}
+    for macID in data['data'].keys():
+        selectedMachine = Machine(id=machinesData['id'][macID],
+                                  secondsPerProduct=machinesData['secondsPerProduct'][macID],
+                                  name=machinesData['name'][macID],
+                                  machines_name=machinesData['machines_name'][macID])
+
+        taskList = {}
+        for taskNo in data['data'][macID]['solution']:
+            taskno = str(taskNo)
+            selectedTask = Task(UID=tasksData['UID'][taskno],
+                                secondsPerProduct=tasksData['secondsPerProduct'][taskno],
+                                toolCode=tasksData['toolCode'][taskno],
+                                toolSize=tasksData['toolSize'][taskno],
+                                dueDate=tasksData['dueDate'][taskno],
+                                qtyTotal=tasksData['qtyTotal'][taskno],
+                                c_dueDate=tasksData['c_dueDate'][taskno])
+
+            taskList[taskno] = selectedTask
+
+        consData[macID] = {'machine': selectedMachine, 'tasks': taskList}
+
+    return consData
+
+
+def scheduling(getSolMachineKeys, machinesData, initPopData, varifier,
+               tasksData, toolsData, sysDate, givenSolutions,
+               maxit, num_children, gaModel, mu, sigma, varmin, varmax,
+               sol_size, machineSolutions, machinePops):
 
     for macID in getSolMachineKeys:
         selectedMachine = Machine(id=machinesData['id'][macID],
@@ -151,53 +218,6 @@ async def root():
     with open(pop_data_file_path, 'w') as f:
         json.dump(pop_data, f, indent=4)
         f.close()
-
-    status['finished'] = "Done!"
-
-    return {"message": "Updated the data!"}
-
-
-@app.get("/getStatus")
-async def get_status():
-    return status
-
-
-@app.get("/machinetasks")
-async def get_machinetasks():
-    getData = GetData()
-
-    tasksData = getData.getTasks()
-    machinesData = getData.getMachines()
-
-    file_path = data_dir_ + "/" + "machinesolutions.json"
-    data = {}
-    with open(file_path) as f:
-        data = json.load(f)
-        f.close()
-
-    consData = {}
-    for macID in data['data'].keys():
-        selectedMachine = Machine(id=machinesData['id'][macID],
-                                  secondsPerProduct=machinesData['secondsPerProduct'][macID],
-                                  name=machinesData['name'][macID],
-                                  machines_name=machinesData['machines_name'][macID])
-
-        taskList = {}
-        for taskNo in data['data'][macID]['solution']:
-            taskno = str(taskNo)
-            selectedTask = Task(UID=tasksData['UID'][taskno],
-                                secondsPerProduct=tasksData['secondsPerProduct'][taskno],
-                                toolCode=tasksData['toolCode'][taskno],
-                                toolSize=tasksData['toolSize'][taskno],
-                                dueDate=tasksData['dueDate'][taskno],
-                                qtyTotal=tasksData['qtyTotal'][taskno],
-                                c_dueDate=tasksData['c_dueDate'][taskno])
-
-            taskList[taskno] = selectedTask
-
-        consData[macID] = {'machine': selectedMachine, 'tasks': taskList}
-
-    return consData
 
 
 def learn(num_children, gaModel, learnpop, costs, mu,

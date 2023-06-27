@@ -5,6 +5,8 @@ import os
 import json
 
 from fastapi import FastAPI as fapi
+from fastapi.middleware.cors import CORSMiddleware
+
 from concurrent.futures import ThreadPoolExecutor
 import psutil
 
@@ -16,6 +18,15 @@ CHROMO_SIZE = int(os.getenv('SOLUTION_SIZE', 4))
 CHROMO_SERIES_PROB = 0.9
 
 app = fapi()
+
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 work_dir_ = os.getcwd()
 data_dir_ = work_dir_ + "/" + "data"
 
@@ -83,7 +94,7 @@ async def root():
         json.dump(data, f, indent=4)
         f.close()
 
-    return {"message": "Updated the data!"}
+    return {"message": "Done"}
 
 
 @app.get("/population")

@@ -1,6 +1,6 @@
 from fastapi import FastAPI as fapi
-from fastapi import Request, BackgroundTasks
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import Request
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -23,9 +23,7 @@ async def root(request: Request):
 
 
 @app.get("/updateall")
-async def updateall(request: Request, background_task: BackgroundTasks):
-    background_task.add_task(update_all_async)
-
+async def updateall(request: Request):
     return templates.TemplateResponse("loading.html", {"request": request})
 
 
@@ -36,17 +34,7 @@ async def updateexistingsolution():
 
 @app.get("/getexistingsolution")
 async def getexistingsolution():
+    # secservice
     data = await getdata.fetchEndpoint('http://secservice:3002/machinetasks')
 
     return data
-
-
-async def update_all_async():
-    res_dpservice = await getdata.fetchEndpoint('http://dpservice:3000')
-
-    res_solservice = None
-    if res_dpservice:
-        res_solservice = await getdata.fetchEndpoint('http://solservice:3001')
-
-    if res_dpservice and res_solservice:
-        _ = await getdata.fetchEndpoint('http://secservice:3002')
