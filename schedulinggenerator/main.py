@@ -10,6 +10,7 @@ from datamodel import Machine, Task
 from reward import Reward
 import os
 import asyncio
+import time
 
 modelURL = os.getenv(
     'MODEL_FILE_URL', "https://raw.githubusercontent.com/msunkaradtt/digitbrainarnaplant/dev2/schedulinggenerator/gamodel/gamodel.py")
@@ -36,12 +37,15 @@ app.add_middleware(
 work_dir_ = os.getcwd()
 data_dir_ = work_dir_ + "/" + "data"
 
-status = {'message': ""}
+completedMachines = 0
+
+status = {'message': "", 'time': "", 'totalMac': "", 'completedMac': ""}
 
 
 # @app.get("/")
 @app.websocket("/wslearn")
 async def root(websocket: WebSocket):
+    global completedMachines
 
     await websocket.accept()
 
@@ -88,7 +92,12 @@ async def root(websocket: WebSocket):
 
     machinePops = {}
 
-    status['message'] = "Loading"
+    status['message'] = "Learning..."
+    status['time'] = "0:0:0"
+    status['totalMac'] = str(len(getSolMachineKeys))
+    status['completedMac'] = "0"
+
+    start_time = time.time()
 
     loop = asyncio.get_event_loop()
 
@@ -101,9 +110,17 @@ async def root(websocket: WebSocket):
         if worker_.done():
             break
 
+        end_time = time.time()
+        time_lapsed = end_time - start_time
+        con_time = timeConvert(time_lapsed)
+
+        status['time'] = con_time
+        status['completedMac'] = str(completedMachines)
+
         await websocket.send_json(status)
         await asyncio.sleep(0.1)
 
+    completedMachines = 0
     status['message'] = "Done"
     await websocket.send_json(status)
 
@@ -151,6 +168,7 @@ def scheduling(getSolMachineKeys, machinesData, initPopData, varifier,
                maxit, num_children, gaModel, mu, sigma, varmin, varmax,
                sol_size, machineSolutions, machinePops):
 
+    global completedMachines
     for macID in getSolMachineKeys:
         selectedMachine = Machine(id=machinesData['id'][macID],
                                   secondsPerProduct=machinesData['secondsPerProduct'][macID],
@@ -199,6 +217,8 @@ def scheduling(getSolMachineKeys, machinesData, initPopData, varifier,
 
         machineSolutions[macID] = bestsol
         machinePops[macID] = matatedPop
+
+        completedMachines += 1
 
         matatedPop = {}
 
@@ -254,3 +274,11 @@ def learn(num_children, gaModel, learnpop, costs, mu,
             matatedPop[chId] = c1
             matatedPop[chId + 1] = c2
             chId += 2
+
+
+def timeConvert(sec):
+    sec_ = sec % 60
+    mins_ = sec // 60
+    hours_ = mins_ // 60
+    time_ = f"{round(hours_)}:{round(mins_)}:{round(sec_)}"
+    return time_

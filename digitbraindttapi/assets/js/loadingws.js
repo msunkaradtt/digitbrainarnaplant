@@ -14,10 +14,21 @@ $(document).ready(function () {
                     success: function (res) {
                         if (res.message === "Done") {
                             var ws = new WebSocket("ws://127.0.0.1:3002/wslearn");
-                            ws.onmessage = function (event) {
+                            ws.onmessage = async function (event) {
                                 data = JSON.parse(event.data);
+
+                                const eleStat = document.getElementById("data-container");
+                                eleStat.innerHTML = data.message;
+
+                                const eleTime = document.getElementById("data-container_1");
+                                eleTime.innerHTML = `Time Lapsed: ${data.time}`;
+
+                                const eleComMac = document.getElementById("data-container_2");
+                                eleComMac.innerHTML = `Completed Machines: ${data.completedMac}/${data.totalMac}`;
+
                                 if (data.message === "Done") {
-                                    window.location.replace("http://127.0.0.1:3006/getexistingsolution")
+                                    await Sleep(3000);
+                                    window.location.replace("http://127.0.0.1:3006/getexistingsolution");
                                 }
                             }
                         }
@@ -32,8 +43,8 @@ $(document).ready(function () {
             'Access-Control-Allow-Origin': '*'
         }
     });
-    /*var ws = new WebSocket("ws://127.0.0.1:3002/wslearn");
-    ws.onmessage = function (event) {
-        console.log(event.data)
-    }*/
 });
+
+function Sleep(millisec) {
+    return new Promise(resolve => setTimeout(resolve, millisec));
+}
