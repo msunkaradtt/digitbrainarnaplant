@@ -44,18 +44,18 @@ status = {'message': "", 'time': "", 'totalMac': "", 'completedMac': ""}
 
 # @app.get("/")
 @app.websocket("/wslearn")
-async def root(websocket: WebSocket):
+async def root(websocket: WebSocket):  # websocket: WebSocket
     global completedMachines
 
     await websocket.accept()
 
-    maxit = int(os.getenv('GENERATIONS', 7))
+    maxit = int(os.getenv('GENERATIONS', 6))  # 10
 
     mu = float(os.getenv('MUTATION_RATE', 0.2))
-    sigma = int(os.getenv('MUTATION_FLIP', 10))
+    sigma = float(os.getenv('MUTATION_FLIP', 0.55))
 
     solAll = os.getenv('FLAG_ALL', "no")
-    machineCount = int(os.getenv('MACHINE_COUNT', 2))
+    machineCount = int(os.getenv('MACHINE_COUNT', 3))
 
     systemDate = os.getenv('SYS_DATE', "2023-02-13T00:00:00.000")
     sysDate = pd.to_datetime(systemDate)
@@ -123,6 +123,7 @@ async def root(websocket: WebSocket):
     completedMachines = 0
     status['message'] = "Done"
     await websocket.send_json(status)
+    # return {"message": "Done"}
 
 
 @app.get("/machinetasks")
@@ -186,41 +187,69 @@ def scheduling(getSolMachineKeys, machinesData, initPopData, varifier,
 
         matatedPop = {}
 
-        for _ in range(maxit):
-            costs = []
+        con_max = 50
+        con = 0
+        while con != con_max:
+            matatedPop = {}
+            for _ in range(maxit):
+                costs = []
 
-            learnpop = {}
-            if (len(matatedPop) == 0):
-                learnpop = copy.deepcopy(machineScores)
-            else:
-                learnpop = copy.deepcopy(matatedPop)
+                learnpop = {}
+                if (len(matatedPop) == 0):
+                    learnpop = copy.deepcopy(machineScores)
+                else:
+                    learnpop = copy.deepcopy(matatedPop)
 
-            for i in range(len(learnpop)):
-                costs.append(learnpop[i]['cost'])
+                for i in range(len(learnpop)):
+                    costs.append(learnpop[i]['cost'])
 
-            learn(num_children, gaModel, learnpop, costs, mu, sigma,
-                  varmin, varmax, varifier, tasksData, toolsData,
-                  sysDate, selectedMachine, givenSolutions,
-                  sol_size, matatedPop)
+                learn(num_children, gaModel, learnpop, costs, mu, sigma,
+                      varmin, varmax, varifier, tasksData, toolsData,
+                      sysDate, selectedMachine, givenSolutions,
+                      sol_size, matatedPop)
 
-        bestsol = {}
-        bestcost = 0
+            bestsol = {}
+            bestcost = 0
+            bestindex = 0
 
-        for up in matatedPop:
-            if matatedPop[up]['cost'] > bestcost:
-                bestsol = matatedPop[up]
-                bestcost = matatedPop[up]['cost']
+            for up in matatedPop:
+                if matatedPop[up]['cost'] > bestcost:
+                    bestsol = matatedPop[up]
+                    bestcost = matatedPop[up]['cost']
+                    bestindex = up
 
-        # print(f'Machine {macID}: Best Solution = {bestsol}')
+            # print(f'Machine {macID}: Best Solution = {bestsol}')
 
-        givenSolutions.append(bestsol['solution'])
+            if len(bestsol) != 0:
+                valSol = validateSolution(selectedMachine, bestsol, tasksData)
 
-        machineSolutions[macID] = bestsol
-        machinePops[macID] = matatedPop
+                if valSol.count(1) >= len(bestsol['solution']) - 1:
+                    zeroIndex = [zeo for zeo, e in enumerate(valSol) if e == 0]
+                    taskIndex = [tas for tas in tasksData['secondsPerProduct'].keys(
+                    ) if tasksData['secondsPerProduct'][tas] == selectedMachine.secondsPerProduct]
+                    for ta in taskIndex:
+                        ta_ = int(ta)
+                        if ta_ not in bestsol['solution'] and len(zeroIndex) != 0:
+                            bestsol['solution'].pop(zeroIndex[0])
+                            bestsol['solution'].insert(zeroIndex[0], ta_)
+                            machineScores[bestindex]['solution'] = bestsol['solution']
+                            machineScores[bestindex]['cost'] = bestsol['cost'] + 5
 
-        completedMachines += 1
+                if 0 not in valSol:
+                    givenSolutions.append(bestsol['solution'])
 
-        matatedPop = {}
+                    machineSolutions[macID] = bestsol
+                    machinePops[macID] = matatedPop
+
+                    # print(f'Machine {macID}: Best Solution = {bestsol}')
+
+                    completedMachines += 1
+
+                    matatedPop = {}
+
+                    break
+
+            con += 1
 
     if not os.path.isdir(data_dir_):
         os.makedirs(data_dir_)
@@ -282,3 +311,25 @@ def timeConvert(sec):
     hours_ = mins_ // 60
     time_ = f"{round(hours_)}:{round(mins_)}:{round(sec_)}"
     return time_
+
+
+def validateSolution(selectedMachine, bestSol, tasksData):
+
+    trueConter = []
+    for i in range(len(bestSol['solution'])):
+        taskNo = str(bestSol['solution'][i])
+
+        selectedTask = Task(UID=tasksData['UID'][taskNo],
+                            secondsPerProduct=tasksData['secondsPerProduct'][taskNo],
+                            toolCode=tasksData['toolCode'][taskNo],
+                            toolSize=tasksData['toolSize'][taskNo],
+                            dueDate=tasksData['dueDate'][taskNo],
+                            qtyTotal=tasksData['qtyTotal'][taskNo],
+                            c_dueDate=tasksData['c_dueDate'][taskNo])
+
+        if selectedTask.secondsPerProduct == selectedMachine.secondsPerProduct:
+            trueConter.append(1)
+        else:
+            trueConter.append(0)
+
+    return trueConter

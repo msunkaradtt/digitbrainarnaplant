@@ -28,13 +28,13 @@ services:
 
   secgenerator_service:
     container_name: secservice
-    image: msunkaradtt/schedulinggenerator:0.9
+    image: msunkaradtt/schedulinggenerator:1.0
     ports:
       - 3002:3002
     environment:
-      - GENERATIONS=7
+      - GENERATIONS=6
       - MUTATION_RATE=0.2
-      - MUTATION_FLIP=10
+      - MUTATION_FLIP=0.55
       - SYS_DATE=2023-02-13T00:00:00.000
       - FLAG_ALL=no
       - MACHINE_COUNT=2

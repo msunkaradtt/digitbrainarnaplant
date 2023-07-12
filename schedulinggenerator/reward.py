@@ -38,9 +38,9 @@ class Reward():
             totalScore = 0
 
             if machine.secondsPerProduct == selectedTask.secondsPerProduct:
-                totalScore += 10
+                totalScore += 20
             else:
-                totalScore -= 10
+                totalScore -= 20
 
             if selectedTool.available > 0 and selectedTool.available != '':
                 totalScore += 10
@@ -71,9 +71,9 @@ class Reward():
 
             for k in temptools:
                 if (temp.toolSize == k.toolSize and temp.toolCode == k.toolCode) and (k.toolSize != '' and k.toolCode != ''):
-                    currentScore += 15
+                    currentScore += 5
                 else:
-                    currentScore -= 15
+                    currentScore -= 5
 
             temptools.insert(j, temp)
             individualScore.pop(j)
@@ -90,7 +90,7 @@ class Reward():
             tempSol.pop(genIndex)
             for tempk in tempSol:
                 if temp == tempk:
-                    individualScore[genIndex] -= 15
+                    individualScore[genIndex] -= 5
                 else:
                     individualScore[genIndex] += 5
 

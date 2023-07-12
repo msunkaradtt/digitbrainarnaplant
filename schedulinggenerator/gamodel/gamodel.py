@@ -39,6 +39,7 @@ class GaModel():
         if len(ind) != 0:
             for i in ind:
                 y['solution'][i[0]] += sigma
+                y['solution'][i[0]] = round(y['solution'][i[0]])
 
         return y
 
