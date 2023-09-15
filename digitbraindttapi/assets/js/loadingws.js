@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    var dpserviceurl = "http://localhost:3000/";
+    /*var dpserviceurl = "http://localhost:3000/";
     var solserviceurl = "http://localhost:3001/";
     var schserviceurl = "ws://localhost:3002/wslearn";
 
@@ -47,7 +47,26 @@ $(document).ready(function () {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': true
         }
-    });
+    });*/
+    var schserviceurl = "ws://secgeneratorservice:3002/wslearn";
+    var ws = new WebSocket(schserviceurl);
+    ws.onmessage = async function (event) {
+        data = JSON.parse(event.data);
+
+        const eleStat = document.getElementById("data-container");
+        eleStat.innerHTML = data.message;
+
+        const eleTime = document.getElementById("data-container_1");
+        eleTime.innerHTML = `Time Lapsed: ${data.time}`;
+
+        const eleComMac = document.getElementById("data-container_2");
+        eleComMac.innerHTML = `Completed Machines: ${data.completedMac}/${data.totalMac}`;
+
+        if (data.message === "Done") {
+            await Sleep(3000);
+            window.location.replace("/getexistingsolution");
+        }
+    }
 });
 
 function Sleep(millisec) {
