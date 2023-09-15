@@ -2,7 +2,7 @@ import requests as req
 
 
 class GetData:
-    def getinitPop(self, url='http://solservice:3001/population',  # solservice
+    def getinitPop(self, url='http://solgeneratorservice:3001/population',  # solservice
                    timeout=10):
         req_pop = req.get(url, timeout=timeout, headers={
                           'Content-Type': 'application/json'})
@@ -10,7 +10,7 @@ class GetData:
 
         return popData
 
-    def getTasks(self, url='http://dpservice:3000/tasks',  # dpservice
+    def getTasks(self, url='http://dtpprocessingservice:3000/tasks',  # dpservice
                  timeout=10):
         req_tasks = req.get(url, timeout=timeout, headers={
                             'Content-Type': 'application/json'})
@@ -18,7 +18,7 @@ class GetData:
 
         return tasksData
 
-    def getMachines(self, url='http://dpservice:3000/machines',  # dpservice
+    def getMachines(self, url='http://dtpprocessingservice:3000/machines',  # dpservice
                     timeout=10):
         req_machines = req.get(url, timeout=timeout, headers={
                                'Content-Type': 'application/json'})
@@ -26,7 +26,7 @@ class GetData:
 
         return machinesData
 
-    def getTools(self, url='http://dpservice:3000/tools', timeout=10):  # dpservice
+    def getTools(self, url='http://dtpprocessingservice:3000/tools', timeout=10):  # dpservice
         req_tools = req.get(url, timeout=timeout, headers={
                             'Content-Type': 'application/json'})
         toolsData = req_tools.json()

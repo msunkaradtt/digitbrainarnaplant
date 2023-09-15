@@ -1,19 +1,23 @@
 $(document).ready(function () {
+    var dpserviceurl = "http://localhost:3000/";
+    var solserviceurl = "http://localhost:3001/";
+    var schserviceurl = "ws://localhost:3002/wslearn";
+
     $.ajax({
-        url: "http://127.0.0.1:3000/",
+        url: dpserviceurl,
         method: "GET",
-        contentType: "application/json",
+        contentType: 'application/json',
         crossDomain: true,
         success: function (res) {
             if (res.message === "Done") {
                 $.ajax({
-                    url: "http://127.0.0.1:3001/",
+                    url: solserviceurl,
                     method: "GET",
                     contentType: "application/json",
                     crossDomain: true,
                     success: function (res) {
                         if (res.message === "Done") {
-                            var ws = new WebSocket("ws://127.0.0.1:3002/wslearn");
+                            var ws = new WebSocket(schserviceurl);
                             ws.onmessage = async function (event) {
                                 data = JSON.parse(event.data);
 
@@ -28,7 +32,7 @@ $(document).ready(function () {
 
                                 if (data.message === "Done") {
                                     await Sleep(3000);
-                                    window.location.replace("http://127.0.0.1:3006/getexistingsolution");
+                                    window.location.replace("/getexistingsolution");
                                 }
                             }
                         }
@@ -40,7 +44,8 @@ $(document).ready(function () {
             }
         },
         headers: {
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true
         }
     });
 });

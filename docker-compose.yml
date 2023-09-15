@@ -1,11 +1,11 @@
-version: '3'
+version: '3.9'
 
 services:
-  dtpprocessing_service:
+  dtpprocessingservice:
     container_name: dpservice
-    image: msunkaradtt/dataprocessingservice:0.8
+    image: msunkaradtt/dataprocessingservice:0.9
     ports:
-      - 3000:3000
+      - '3000:3000'
     environment:
       - ENV_TASKS_URL=https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tasks
       - ENV_TOOLS_URL=https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tools
@@ -14,11 +14,11 @@ services:
       - digitbrain
     restart: unless-stopped
 
-  solgenerator_service:
+  solgeneratorservice:
     container_name: solservice
-    image: msunkaradtt/solutiongenerator:1.1
+    image: msunkaradtt/solutiongenerator:1.2
     ports:
-      - 3001:3001
+      - '3001:3001'
     environment:
       - POPULATION_SIZE_MULTI=1
       - SOLUTION_SIZE=4
@@ -26,11 +26,11 @@ services:
       - digitbrain
     restart: unless-stopped
 
-  secgenerator_service:
+  secgeneratorservice:
     container_name: secservice
-    image: msunkaradtt/schedulinggenerator:1.0
+    image: msunkaradtt/schedulinggenerator:1.1
     ports:
-      - 3002:3002
+      - '3002:3002'
     environment:
       - GENERATIONS=6
       - MUTATION_RATE=0.2
@@ -43,11 +43,14 @@ services:
       - digitbrain
     restart: unless-stopped
 
-  dttapi_service:
+  dttapiservice:
     container_name: apiservice
-    image: msunkaradtt/digitbraindttapi:0.1
+    image: msunkaradtt/digitbraindttapi:0.3
     ports:
-      - 3006:3006
+      - mode: host
+        protocol: tcp
+        published: '3006'
+        target: '3006'
     networks:
       - digitbrain
     restart: unless-stopped

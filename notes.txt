@@ -1,13 +1,24 @@
 docker commands
 
-docker build -t msunkaradtt/dataprocessingservice:0.7 .
+docker build -t msunkaradtt/dataprocessingservice:0.9 .
 docker run --name dpservice --network digitbrain -p 3000:3000 -d msunkaradtt/dataprocessingservice:0.7 
 
-docker build -t msunkaradtt/solutiongenerator:0.9 .
+docker build -t msunkaradtt/solutiongenerator:1.2 .
 docker run --name solservice --network digitbrain -p 3001:3001 -d msunkaradtt/solutiongenerator:0.9
 
-docker build -t msunkaradtt/schedulinggenerator:0.7 .
+docker build -t msunkaradtt/schedulinggenerator:1.1 .
 docker run --name sechservice --network digitbrain -p 3002:3002 -d msunkaradtt/schedulinggenerator:0.7
 
-docker build -t msunkaradtt/digitbraindttapi:0.0 .
-docker push msunkaradtt/IMAGE:TAG
+docker build -t msunkaradtt/digitbraindttapi:0.3 .
+
+docker push msunkaradtt/dataprocessingservice:0.9
+docker push msunkaradtt/solutiongenerator:1.2
+docker push msunkaradtt/schedulinggenerator:1.1
+docker push msunkaradtt/digitbraindttapi:0.3
+
+containers on emGORA:
+
+dtpprocessingservice
+solgeneratorservice
+secgeneratorservice
+dttapiservice
