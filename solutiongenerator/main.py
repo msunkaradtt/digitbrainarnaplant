@@ -96,6 +96,14 @@ async def root():
 
     return {"message": "Done"}
 
+@app.get("/parameters")
+async def get_parameters():
+    data_ = {
+        'pop_size_mul': POP_SIZE_MULTI,
+        'sol_size': CHROMO_SIZE
+    }
+
+    return data_
 
 @app.get("/population")
 async def get_tasks():

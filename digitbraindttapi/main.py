@@ -21,28 +21,22 @@ templates = Jinja2Templates(directory="templates")
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/update")
-async def update():
-    data = await getdata.fetchEndpoint('http://dtpprocessingservice:3000/')
-    if(data['message'] == "Done"):
-        data = await getdata.fetchEndpoint('http://solgeneratorservice:3001/')
+@app.get("/settings", response_class=HTMLResponse, include_in_schema=False)
+async def updateSettings(request: Request):
+    dp_data = await getdata.fetchEndpoint('http://dtpprocessingservice:3000/parameters')
+    sol_data = await getdata.fetchEndpoint('http://solgeneratorservice:3001/parameters')
+    return templates.TemplateResponse("settings.html", {"request": request, "data_p": dp_data, "data_so": sol_data})
 
-    return data
-
-
-@app.get("/updateall")
+@app.get("/updateall", response_class=HTMLResponse)
 async def updateall(request: Request):
     return templates.TemplateResponse("loading.html", {"request": request})
 
-
-@app.get("/updateexistingsolution")
-async def updateexistingsolution():
-    return {'message': "Need to write logic!"}
-
-
 @app.get("/getexistingsolution")
 async def getexistingsolution():
-    # secservice
     data = await getdata.fetchEndpoint('http://secgeneratorservice:3002/machinetasks')
 
     return data
+
+#@app.get("/updateexistingsolution")
+#async def updateexistingsolution():
+#    return {'message': "Need to write logic!"}

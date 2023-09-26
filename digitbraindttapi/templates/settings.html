@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Loding page CSS -->
+    <link rel="stylesheet" href="assets/css/settings.css" />
+    <title>DTT-Arneplant API | Settings</title>
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+</head>
+<body>
+    <div class="main-block">
+        <form method="post">
+            <h1>Micro Services Settings</h1>
+            <fieldset>
+                <legend>
+                    <h3>Data Processing Service</h3>
+                </legend>
+                <div class="account-details">
+                    <div><label>Tasks URL*</label><input type="url" name="Taurl" pattern="http://.*" required value={{ data_p['tasks_url'] }}></div>
+                    <div><label>Tools URL*</label><input type="url" name="Tourl" pattern="http://.*" required value={{ data_p['tools_url'] }}></div>
+                    <div><label>Machines URL*</label><input type="url" name="Maurl" pattern="http://.*" required value={{ data_p['machines_url'] }}></div>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    <h3>Solution Generation Service</h3>
+                </legend>
+                <div class="account-details">
+                    <div><label>Population Size Multipler*</label><input type="number" name="pom" min="1" max="3" required value={{ data_so['pop_size_mul'] }}></div>
+                    <div><label>Solution Size*</label><input type="number" name="sols" min="2" max="5" required value={{ data_so['sol_size'] }}></div>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    <h3>Scheduling Generation Service</h3>
+                </legend>
+                <div class="account-details">
+                    <div><label>Tasks URL*</label><input type="text" name="Tname" required></div>
+                    <div><label>Tools URL*</label><input type="text" name="Toname" required></div>
+                    <div><label>Machines URL*</label><input type="text" name="Maname" required></div>
+                </div>
+            </fieldset>
+            <button href="/">Update</button>
+            <button href="/">Back</button>
+        </form>
+    </div> 
+</body>
+</html>
+

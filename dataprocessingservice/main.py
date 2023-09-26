@@ -83,6 +83,15 @@ async def root():
 
     return {"message": "Done"}
 
+@app.get("/parameters")
+async def get_parameters():
+    data_ = {
+        'tasks_url': ENV_TASKS_URL,
+        'tools_url': ENV_TOOLS_URL,
+        'machines_url': ENV_MACHINES_URL
+    }
+
+    return data_
 
 @app.get("/tasks")
 async def get_tasks():

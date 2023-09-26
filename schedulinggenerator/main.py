@@ -125,6 +125,18 @@ async def root(websocket: WebSocket):  # websocket: WebSocket
     await websocket.send_json(status)
     # return {"message": "Done"}
 
+@app.get("/parameters")
+async def get_parameters():
+    data_ = {
+        'generations': int(os.getenv('GENERATIONS')),
+        'mutation_rate': float(os.getenv('MUTATION_RATE')),
+        'mutation_flip': float(os.getenv('MUTATION_FLIP')),
+        'sys_date': os.getenv('SYS_DATE'),
+        'flag_all': os.getenv('FLAG_ALL'),
+        'machine_count': int(os.getenv('MACHINE_COUNT'))
+    }
+
+    return data_
 
 @app.get("/machinetasks")
 async def get_machinetasks():

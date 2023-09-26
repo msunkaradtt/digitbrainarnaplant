@@ -1,7 +1,7 @@
 $(document).ready(function () {
-    var dpserviceurl = "http://localhost:3000/";
-    var solserviceurl = "http://localhost:3001/";
-    var schserviceurl = "ws://localhost:3002/wslearn";
+    var dpserviceurl = "http://dttapi.cbp-routing.ch:3000/";
+    var solserviceurl = "http://dttapi.cbp-routing.ch:3001/";
+    var schserviceurl = "ws://dttapi.cbp-routing.ch:3002/wslearn";
 
     $.ajax({
         url: dpserviceurl,
@@ -44,8 +44,7 @@ $(document).ready(function () {
             }
         },
         headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': true
+            'Access-Control-Allow-Origin': '*'
         }
     });
 });
