@@ -35,7 +35,7 @@ services:
       - GENERATIONS=6
       - MUTATION_RATE=0.2
       - MUTATION_FLIP=0.55
-      - SYS_DATE=2023-02-13T00:00:00.000
+      - SYS_DATE=2023-02-13T00:00
       - FLAG_ALL=no
       - MACHINE_COUNT=2
       - MODEL_FILE_URL=https://raw.githubusercontent.com/msunkaradtt/digitbrainarnaplant/dev2/schedulinggenerator/gamodel/gamodel.py

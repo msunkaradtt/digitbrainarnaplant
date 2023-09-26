@@ -22,9 +22,9 @@
                     <h3>Data Processing Service</h3>
                 </legend>
                 <div class="account-details">
-                    <div><label>Tasks URL*</label><input type="url" name="Taurl" pattern="http://.*" required value={{ data_p['tasks_url'] }}></div>
-                    <div><label>Tools URL*</label><input type="url" name="Tourl" pattern="http://.*" required value={{ data_p['tools_url'] }}></div>
-                    <div><label>Machines URL*</label><input type="url" name="Maurl" pattern="http://.*" required value={{ data_p['machines_url'] }}></div>
+                    <div><label>Tasks URL*</label><input type="url" name="Taurl" pattern="https://.*" required value={{ data_p['tasks_url'] }}></div>
+                    <div><label>Tools URL*</label><input type="url" name="Tourl" pattern="https://.*" required value={{ data_p['tools_url'] }}></div>
+                    <div><label>Machines URL*</label><input type="url" name="Maurl" pattern="https://.*" required value={{ data_p['machines_url'] }}></div>
                 </div>
             </fieldset>
             <fieldset>
@@ -41,13 +41,22 @@
                     <h3>Scheduling Generation Service</h3>
                 </legend>
                 <div class="account-details">
-                    <div><label>Tasks URL*</label><input type="text" name="Tname" required></div>
-                    <div><label>Tools URL*</label><input type="text" name="Toname" required></div>
-                    <div><label>Machines URL*</label><input type="text" name="Maname" required></div>
+                    <div><label>Generations*</label><input type="number" name="gen" min="1" max="10" required value={{ data_sc['generations'] }}></div>
+                    <div><label>Mutation Rate*</label><input type="number" name="mutrate" min="0.0" max="1.0" step="0.1" required value={{ data_sc['mutation_rate'] }}></div>
+                    <div><label>Mutation Flip*</label><input type="number" name="mutflip" min="0.0" max="1.0" step="0.05" required value={{ data_sc['mutation_flip'] }}></div>
+                    <div><label>System Date*</label><input type="datetime-local" name="sysdatetime" value={{ data_sc['sys_date'] }}></div>
+                    <div>
+                        <label>Schedul All Machines*</label> 
+                        <select name="schedulallflag" required>
+                            <option value={{ data_sc['flag_all'] }}>{{ data_sc['flag_all'] }}</option>
+                            <option value="yes">yes</option>
+                        </select>
+                    </div>
+                    <div><label>Machine Count*</label><input type="number" name="machcount" min="1" required value={{ data_sc['machine_count'] }}></div>
                 </div>
             </fieldset>
-            <button href="/">Update</button>
-            <button href="/">Back</button>
+            <button type="submit">Update</button>
+            <button href="/">Cancle</button>
         </form>
     </div> 
 </body>
