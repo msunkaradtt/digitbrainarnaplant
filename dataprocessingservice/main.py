@@ -21,17 +21,6 @@ app.add_middleware(
 work_dir_ = os.getcwd()
 data_dir_ = work_dir_ + "/" + "data"
 
-'''
-Global Config Parameters
-'''
-ENV_TASKS_URL = os.getenv(
-    'ENV_TASKS_URL', 'https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tasks')
-ENV_TOOLS_URL = os.getenv(
-    'ENV_TOOLS_URL', 'https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tools')
-ENV_MACHINES_URL = os.getenv(
-    'ENV_MACHINES_URL', 'https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/machines')
-
-
 def __converdate(x):
     timeStamp_ = x.split("(")[1].split(")")[0]
 
@@ -49,6 +38,10 @@ def __converdate(x):
 
 @app.get("/")
 async def root():
+    ENV_TASKS_URL = os.getenv('ENV_TASKS_URL', 'https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tasks')
+    ENV_TOOLS_URL = os.getenv('ENV_TOOLS_URL', 'https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/tools')
+    ENV_MACHINES_URL = os.getenv('ENV_MACHINES_URL', 'https://meteo-de-oscar.proxy.beeceptor.com/digitbrain/machines')
+
     endpoints = [ENV_TASKS_URL, ENV_TOOLS_URL, ENV_MACHINES_URL]
     x = DataReader(endpoints)
     await x.fetch_main()
@@ -83,13 +76,28 @@ async def root():
 
     return {"message": "Done"}
 
+def read_param():
+    data_ = {
+        'tasks_url': os.getenv('ENV_TASKS_URL'),
+        'tools_url': os.getenv('ENV_TOOLS_URL'),
+        'machines_url': os.getenv('ENV_MACHINES_URL')
+    }
+
+    return data_
+
 @app.get("/parameters")
 async def get_parameters():
-    data_ = {
-        'tasks_url': ENV_TASKS_URL,
-        'tools_url': ENV_TOOLS_URL,
-        'machines_url': ENV_MACHINES_URL
-    }
+    data_ = read_param()
+
+    return data_
+
+@app.get("/updateparams")
+async def set_parameters(taskurl, toolsurl, machinesurl):
+    os.environ['ENV_TASKS_URL'] = taskurl
+    os.environ['ENV_TOOLS_URL'] = toolsurl
+    os.environ['ENV_MACHINES_URL'] = machinesurl
+
+    data_ = read_param()
 
     return data_
 

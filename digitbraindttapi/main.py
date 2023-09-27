@@ -33,8 +33,14 @@ async def updateSettings(request: Request):
 async def updateSettings(request: Request):
     fmData = await request.form()
     fmData = jsonable_encoder(fmData)
-    print(fmData)
-    return fmData
+
+    dp_params = {'taskurl': fmData['Taurl'], 'toolsurl': fmData['Tourl'], 'machinesurl': fmData['Maurl']}
+    dp_data = await getdata.fetchEndpoint('http://dtpprocessingservice:3000/updateparams', dp_params)
+    
+    sol_params = {'pom': fmData['pom'], 'solsize': fmData['sols']}
+    sol_data = await getdata.fetchEndpoint('http://solgeneratorservice:3001/updateparams', sol_params)
+
+    return sol_data
 
 @app.get("/updateall", response_class=HTMLResponse)
 async def updateall(request: Request):

@@ -13,8 +13,6 @@ import psutil
 '''
 Global Config Parameters
 '''
-POP_SIZE_MULTI = int(os.getenv('POPULATION_SIZE_MULTI', 1))
-CHROMO_SIZE = int(os.getenv('SOLUTION_SIZE', 4))
 CHROMO_SERIES_PROB = 0.9
 
 app = fapi()
@@ -33,6 +31,9 @@ data_dir_ = work_dir_ + "/" + "data"
 
 @app.get("/")
 async def root():
+    POP_SIZE_MULTI = int(os.getenv('POPULATION_SIZE_MULTI', 1))
+    CHROMO_SIZE = int(os.getenv('SOLUTION_SIZE', 4))
+
     dataGetter = GetProcessedData()
     td_cus_date, td_cus_tool, td_fac_date, td_fac_tool, td_cus_spp, td_fac_spp = dataGetter.getTasks()
 
@@ -96,12 +97,26 @@ async def root():
 
     return {"message": "Done"}
 
+def read_param():
+    data_ = {
+        'pop_size_mul': os.getenv('POPULATION_SIZE_MULTI'),
+        'sol_size': os.getenv('SOLUTION_SIZE')
+    }
+
+    return data_
+
 @app.get("/parameters")
 async def get_parameters():
-    data_ = {
-        'pop_size_mul': POP_SIZE_MULTI,
-        'sol_size': CHROMO_SIZE
-    }
+    data_ = read_param()
+
+    return data_
+
+@app.get("/updateparams")
+async def set_parameters(pom, solsize):
+    os.environ['POPULATION_SIZE_MULTI'] = pom
+    os.environ['SOLUTION_SIZE'] = solsize
+
+    data_ = read_param()
 
     return data_
 

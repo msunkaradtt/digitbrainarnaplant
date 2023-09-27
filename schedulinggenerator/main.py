@@ -125,6 +125,15 @@ async def root(websocket: WebSocket):  # websocket: WebSocket
     await websocket.send_json(status)
     # return {"message": "Done"}
 
+def read_param():
+    data_ = {
+        'tasks_url': os.getenv('ENV_TASKS_URL'),
+        'tools_url': os.getenv('ENV_TOOLS_URL'),
+        'machines_url': os.getenv('ENV_MACHINES_URL')
+    }
+
+    return data_
+
 @app.get("/parameters")
 async def get_parameters():
     data_ = {
