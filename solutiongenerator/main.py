@@ -28,11 +28,12 @@ app.add_middleware(
 work_dir_ = os.getcwd()
 data_dir_ = work_dir_ + "/" + "data"
 
+POP_SIZE_MULTI = int(os.getenv('POPULATION_SIZE_MULTI', 1))
+CHROMO_SIZE = int(os.getenv('SOLUTION_SIZE', 4))
 
 @app.get("/")
 async def root():
-    POP_SIZE_MULTI = int(os.getenv('POPULATION_SIZE_MULTI', 1))
-    CHROMO_SIZE = int(os.getenv('SOLUTION_SIZE', 4))
+    global POP_SIZE_MULTI, CHROMO_SIZE
 
     dataGetter = GetProcessedData()
     td_cus_date, td_cus_tool, td_fac_date, td_fac_tool, td_cus_spp, td_fac_spp = dataGetter.getTasks()
@@ -97,28 +98,26 @@ async def root():
 
     return {"message": "Done"}
 
-def read_param():
-    data_ = {
-        'pop_size_mul': os.getenv('POPULATION_SIZE_MULTI'),
-        'sol_size': os.getenv('SOLUTION_SIZE')
-    }
-
-    return data_
 
 @app.get("/parameters")
 async def get_parameters():
-    data_ = read_param()
+    global POP_SIZE_MULTI, CHROMO_SIZE
+
+    data_ = {
+        'pop_size_mul': str(POP_SIZE_MULTI),
+        'sol_size': str(CHROMO_SIZE)
+    }
 
     return data_
 
 @app.get("/updateparams")
 async def set_parameters(pom, solsize):
-    os.environ['POPULATION_SIZE_MULTI'] = pom
-    os.environ['SOLUTION_SIZE'] = solsize
+    global POP_SIZE_MULTI, CHROMO_SIZE
 
-    data_ = read_param()
+    POP_SIZE_MULTI = int(pom)
+    CHROMO_SIZE = int(solsize)
 
-    return data_
+    return {"message": "Done"}
 
 @app.get("/population")
 async def get_tasks():

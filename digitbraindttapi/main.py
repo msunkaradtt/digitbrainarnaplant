@@ -1,11 +1,12 @@
 from fastapi import FastAPI as fapi
-from fastapi import Request
-from fastapi.responses import HTMLResponse
+from fastapi import Request, status
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from getdata import GetData
 from fastapi.encoders import jsonable_encoder
+import time
 
 app = fapi()
 getdata = GetData()
@@ -35,12 +36,15 @@ async def updateSettings(request: Request):
     fmData = jsonable_encoder(fmData)
 
     dp_params = {'taskurl': fmData['Taurl'], 'toolsurl': fmData['Tourl'], 'machinesurl': fmData['Maurl']}
-    dp_data = await getdata.fetchEndpoint('http://dtpprocessingservice:3000/updateparams', dp_params)
+    await getdata.fetchEndpoint('http://dtpprocessingservice:3000/updateparams', dp_params)
     
     sol_params = {'pom': fmData['pom'], 'solsize': fmData['sols']}
-    sol_data = await getdata.fetchEndpoint('http://solgeneratorservice:3001/updateparams', sol_params)
+    await getdata.fetchEndpoint('http://solgeneratorservice:3001/updateparams', sol_params)
 
-    return sol_data
+    sch_params = {'gen': fmData['gen'], 'murate': fmData['mutrate'], 'muflip': fmData['mutflip'], 'sysdate': fmData['sysdatetime'], 'flagall': fmData['schedulallflag'], 'macount': fmData['machcount']}
+    await getdata.fetchEndpoint('http://secgeneratorservice:3002/updateparams', sch_params)
+
+    return RedirectResponse(url=app.url_path_for("root"), status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/updateall", response_class=HTMLResponse)
 async def updateall(request: Request):

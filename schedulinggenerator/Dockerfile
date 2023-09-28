@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "main:app", "--workers", "4", "--host", "0.0.0.0", "--port", "3002"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3002"]

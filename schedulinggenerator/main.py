@@ -41,24 +41,24 @@ completedMachines = 0
 
 status = {'message': "", 'time': "", 'totalMac': "", 'completedMac': ""}
 
+GENERATIONS = int(os.getenv('GENERATIONS', 6))  # 10
+MUTATION_RATE = float(os.getenv('MUTATION_RATE', 0.2))
+MUTATION_FLIP = float(os.getenv('MUTATION_FLIP', 0.55))
+FLAG_ALL = os.getenv('FLAG_ALL', "no")
+MACHINE_COUNT = int(os.getenv('MACHINE_COUNT', 3))
+SYS_DATE = os.getenv('SYS_DATE', "2023-02-13T00:00")
 
 # @app.get("/")
 @app.websocket("/wslearn")
 async def root(websocket: WebSocket):  # websocket: WebSocket
-    global completedMachines
+    global completedMachines, GENERATIONS, MUTATION_RATE, MUTATION_FLIP, FLAG_ALL, MACHINE_COUNT, SYS_DATE
 
+    print(MACHINE_COUNT)
+    print(type(MACHINE_COUNT))
+    
     await websocket.accept()
 
-    maxit = int(os.getenv('GENERATIONS', 6))  # 10
-
-    mu = float(os.getenv('MUTATION_RATE', 0.2))
-    sigma = float(os.getenv('MUTATION_FLIP', 0.55))
-
-    solAll = os.getenv('FLAG_ALL', "no")
-    machineCount = int(os.getenv('MACHINE_COUNT', 3))
-
-    systemDate = os.getenv('SYS_DATE', "2023-02-13T00:00:00.000")
-    sysDate = pd.to_datetime(systemDate)
+    sysDate = pd.to_datetime(SYS_DATE)
 
     getData = GetData()
     initPopData = getData.getinitPop()
@@ -81,9 +81,9 @@ async def root(websocket: WebSocket):  # websocket: WebSocket
 
     machineKeys = [mac for mac in machinesData['id'].keys()]
     getSolMachineKeys = []
-    if solAll == "no":
-        getSolMachineKeys = copy.deepcopy(machineKeys[:machineCount])
-    elif solAll == "yes":
+    if FLAG_ALL == "no":
+        getSolMachineKeys = copy.deepcopy(machineKeys[:MACHINE_COUNT])
+    elif FLAG_ALL == "yes":
         getSolMachineKeys = copy.deepcopy(machineKeys)
 
     givenSolutions = []
@@ -102,8 +102,8 @@ async def root(websocket: WebSocket):  # websocket: WebSocket
     loop = asyncio.get_event_loop()
 
     worker_ = loop.run_in_executor(None, scheduling, getSolMachineKeys, machinesData, initPopData, varifier,
-                                   tasksData, toolsData, sysDate, givenSolutions, maxit,
-                                   num_children, gaModel, mu, sigma, varmin, varmax,
+                                   tasksData, toolsData, sysDate, givenSolutions, GENERATIONS,
+                                   num_children, gaModel, MUTATION_RATE, MUTATION_FLIP, varmin, varmax,
                                    sol_size, machineSolutions, machinePops)
 
     while True:
@@ -125,27 +125,33 @@ async def root(websocket: WebSocket):  # websocket: WebSocket
     await websocket.send_json(status)
     # return {"message": "Done"}
 
-def read_param():
-    data_ = {
-        'tasks_url': os.getenv('ENV_TASKS_URL'),
-        'tools_url': os.getenv('ENV_TOOLS_URL'),
-        'machines_url': os.getenv('ENV_MACHINES_URL')
-    }
-
-    return data_
-
 @app.get("/parameters")
 async def get_parameters():
+    global GENERATIONS, MUTATION_RATE, MUTATION_FLIP, FLAG_ALL, MACHINE_COUNT, SYS_DATE
+
     data_ = {
-        'generations': int(os.getenv('GENERATIONS')),
-        'mutation_rate': float(os.getenv('MUTATION_RATE')),
-        'mutation_flip': float(os.getenv('MUTATION_FLIP')),
-        'sys_date': os.getenv('SYS_DATE'),
-        'flag_all': os.getenv('FLAG_ALL'),
-        'machine_count': int(os.getenv('MACHINE_COUNT'))
+        'generations': str(GENERATIONS),
+        'mutation_rate': str(MUTATION_RATE),
+        'mutation_flip': str(MUTATION_FLIP),
+        'sys_date': SYS_DATE,
+        'flag_all': FLAG_ALL,
+        'machine_count': str(MACHINE_COUNT)
     }
 
     return data_
+
+@app.get("/updateparams")
+async def set_parameters(gen, murate, muflip, sysdate, flagall, macount):
+    global GENERATIONS, MUTATION_RATE, MUTATION_FLIP, FLAG_ALL, MACHINE_COUNT, SYS_DATE
+
+    GENERATIONS = int(gen)
+    MUTATION_RATE = float(murate)
+    MUTATION_FLIP = float(muflip)
+    SYS_DATE = sysdate
+    FLAG_ALL = flagall
+    MACHINE_COUNT = int(macount)
+
+    return {"message": "Done"}
 
 @app.get("/machinetasks")
 async def get_machinetasks():

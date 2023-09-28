@@ -1,7 +1,7 @@
 $(document).ready(function () {
-    var dpserviceurl = "http://dttapi.cbp-routing.ch:3000/";
-    var solserviceurl = "http://dttapi.cbp-routing.ch:3001/";
-    var schserviceurl = "ws://dttapi.cbp-routing.ch:3002/wslearn";
+    var dpserviceurl = "http://0.0.0.0:3000/"; //dttapi.cbp-routing.ch
+    var solserviceurl = "http://0.0.0.0:3001/"; //dttapi.cbp-routing.ch
+    var schserviceurl = "ws://0.0.0.0:3002/wslearn"; //dttapi.cbp-routing.ch
 
     $.ajax({
         url: dpserviceurl,
