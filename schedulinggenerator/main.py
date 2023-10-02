@@ -48,13 +48,9 @@ FLAG_ALL = os.getenv('FLAG_ALL', "no")
 MACHINE_COUNT = int(os.getenv('MACHINE_COUNT', 3))
 SYS_DATE = os.getenv('SYS_DATE', "2023-02-13T00:00")
 
-# @app.get("/")
 @app.websocket("/wslearn")
-async def root(websocket: WebSocket):  # websocket: WebSocket
+async def root(websocket: WebSocket):  
     global completedMachines, GENERATIONS, MUTATION_RATE, MUTATION_FLIP, FLAG_ALL, MACHINE_COUNT, SYS_DATE
-
-    print(MACHINE_COUNT)
-    print(type(MACHINE_COUNT))
     
     await websocket.accept()
 
@@ -123,7 +119,6 @@ async def root(websocket: WebSocket):  # websocket: WebSocket
     completedMachines = 0
     status['message'] = "Done"
     await websocket.send_json(status)
-    # return {"message": "Done"}
 
 @app.get("/parameters")
 async def get_parameters():

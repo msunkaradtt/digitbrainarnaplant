@@ -2,6 +2,8 @@ $(document).ready(function () {
     var dpserviceurl = "http://0.0.0.0:3000/"; //dttapi.cbp-routing.ch
     var solserviceurl = "http://0.0.0.0:3001/"; //dttapi.cbp-routing.ch
     var schserviceurl = "ws://0.0.0.0:3002/wslearn"; //dttapi.cbp-routing.ch
+    var client_id = "DTT";
+    var wsinfo = `ws://0.0.0.0:3006/wsinfo/${client_id}`;
 
     $.ajax({
         url: dpserviceurl,
@@ -18,8 +20,11 @@ $(document).ready(function () {
                     success: function (res) {
                         if (res.message === "Done") {
                             var ws = new WebSocket(schserviceurl);
+                            var ws_info = new WebSocket(wsinfo);
+
                             ws.onmessage = async function (event) {
                                 data = JSON.parse(event.data);
+                                ws_info.send(event.data);
 
                                 const eleStat = document.getElementById("data-container");
                                 eleStat.innerHTML = data.message;
@@ -31,6 +36,7 @@ $(document).ready(function () {
                                 eleComMac.innerHTML = `Completed Machines: ${data.completedMac}/${data.totalMac}`;
 
                                 if (data.message === "Done") {
+                                    ws_info.close();
                                     await Sleep(3000);
                                     window.location.replace("/getexistingsolution");
                                 }

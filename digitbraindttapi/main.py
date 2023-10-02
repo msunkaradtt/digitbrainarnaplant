@@ -1,5 +1,5 @@
 from fastapi import FastAPI as fapi
-from fastapi import Request, status
+from fastapi import Request, status, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -7,6 +7,9 @@ from pathlib import Path
 from getdata import GetData
 from fastapi.encoders import jsonable_encoder
 import time
+import json
+
+import asyncio
 
 app = fapi()
 getdata = GetData()
@@ -55,6 +58,39 @@ async def getexistingsolution():
     data = await getdata.fetchEndpoint('http://secgeneratorservice:3002/machinetasks')
 
     return data
+
+async def s_msg(ws, conn):
+    data = await ws.receive_json()
+    for uid, ws in connections.items():
+        if uid != "DTT":
+            await ws.send_json(data)
+
+
+connections = {}
+@app.websocket("/wsinfo/{client_id}")
+async def wsinfo(ws: WebSocket, client_id):
+    await ws.accept()
+    connections[client_id] = ws
+    try:
+        while True:
+            send_task = asyncio.create_task(s_msg(ws, connections))
+
+            done, pending = await asyncio.wait(
+                {send_task},
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+
+            for task in pending:
+                task.cancel()
+            for task in done:
+                task.result()
+    except WebSocketDisconnect:
+        if client_id == "DTT":
+            del connections[client_id]
+
+        for uid, ws in connections.items():
+            await ws.close()
+        connections.clear()
 
 #@app.get("/updateexistingsolution")
 #async def updateexistingsolution():

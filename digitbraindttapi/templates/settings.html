@@ -22,9 +22,9 @@
                     <h3>Data Processing Service</h3>
                 </legend>
                 <div class="account-details">
-                    <div><label>Tasks URL*</label><input type="hidden" name="Taurl" pattern="https://.*" required value={{ data_p['tasks_url'] }}></div>
-                    <div><label>Tools URL*</label><input type="hidden" name="Tourl" pattern="https://.*" required value={{ data_p['tools_url'] }}></div>
-                    <div><label>Machines URL*</label><input type="hidden" name="Maurl" pattern="https://.*" required value={{ data_p['machines_url'] }}></div>
+                    <div><label>Tasks URL*</label><input type="url" name="Taurl" pattern="https://.*" required value={{ data_p['tasks_url'] }}></div>
+                    <div><label>Tools URL*</label><input type="url" name="Tourl" pattern="https://.*" required value={{ data_p['tools_url'] }}></div>
+                    <div><label>Machines URL*</label><input type="url" name="Maurl" pattern="https://.*" required value={{ data_p['machines_url'] }}></div>
                 </div>
             </fieldset>
             <fieldset>
