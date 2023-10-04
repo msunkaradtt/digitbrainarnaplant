@@ -39,8 +39,6 @@ data_dir_ = work_dir_ + "/" + "data"
 
 completedMachines = 0
 
-status = {'message': "", 'time': "", 'totalMac': "", 'completedMac': ""}
-
 GENERATIONS = int(os.getenv('GENERATIONS', 6))  # 10
 MUTATION_RATE = float(os.getenv('MUTATION_RATE', 0.2))
 MUTATION_FLIP = float(os.getenv('MUTATION_FLIP', 0.55))
@@ -53,6 +51,8 @@ async def root(websocket: WebSocket):
     global completedMachines, GENERATIONS, MUTATION_RATE, MUTATION_FLIP, FLAG_ALL, MACHINE_COUNT, SYS_DATE
     
     await websocket.accept()
+
+    status = {'message': "", 'time': "", 'totalMac': "", 'completedMac': ""}
 
     sysDate = pd.to_datetime(SYS_DATE)
 
@@ -115,7 +115,8 @@ async def root(websocket: WebSocket):
 
         await websocket.send_json(status)
         await asyncio.sleep(0.1)
-
+    
+    getSolMachineKeys.clear()
     completedMachines = 0
     status['message'] = "Done"
     await websocket.send_json(status)
