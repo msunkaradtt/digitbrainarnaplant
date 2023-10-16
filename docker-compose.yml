@@ -3,7 +3,7 @@ version: '3.9'
 services:
   dtpprocessingservice:
     container_name: dpservice
-    image: msunkaradtt/dataprocessingservice:0.9
+    image: msunkaradtt/dataprocessingservice:1.0
     ports:
       - '3000:3000'
     environment:
@@ -16,7 +16,7 @@ services:
 
   solgeneratorservice:
     container_name: solservice
-    image: msunkaradtt/solutiongenerator:1.2
+    image: msunkaradtt/solutiongenerator:1.3
     ports:
       - '3001:3001'
     environment:
@@ -28,7 +28,7 @@ services:
 
   secgeneratorservice:
     container_name: secservice
-    image: msunkaradtt/schedulinggenerator:1.1
+    image: msunkaradtt/schedulinggenerator:1.2
     ports:
       - '3002:3002'
     environment:
@@ -45,7 +45,7 @@ services:
 
   dttapiservice:
     container_name: apiservice
-    image: msunkaradtt/digitbraindttapi:0.3
+    image: msunkaradtt/digitbraindttapi:0.4
     ports:
       - mode: host
         protocol: tcp
